@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 export default function App() {
-  const [machineTemp, setMachineTemp] = useState(56);
+  const [temperature, setTemperature] = useState(56);
   const [setTemp, setSetTemp] = useState(37); // Nhiệt độ cài đặt
   const [isRunning, setIsRunning] = useState(false); // Trạng thái START/STOP
   const [time, setTime] = useState(0); // Thời gian đếm
@@ -46,7 +46,7 @@ export default function App() {
     const unsubscribe = onValue(statusRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        setMachineTemp(data.machineTemp || 56); // Cập nhật nhiệt độ máy
+        setTemperature(data.temperature || 56); // Cập nhật nhiệt độ máy
         setSetTemp(data.setTemp || 37); // Cập nhật nhiệt độ cài đặt
         setIsRunning(data.startStop === 'START'); // Cập nhật trạng thái START/STOP
       }
@@ -79,8 +79,8 @@ export default function App() {
 
   // Cập nhật nhiệt độ máy vào Firebase
   useEffect(() => {
-    set(ref(database, 'machineStatus/machineTemp'), machineTemp); // Cập nhật giá trị máy lên Firebase
-  }, [machineTemp]);
+    set(ref(database, 'machineStatus/temperature'), temperature); // Cập nhật giá trị máy lên Firebase
+  }, [temperature]);
 
   // Chuyển thời gian từ giây sang phút và giây
   const formatTime = (timeInSeconds: number) => {
@@ -97,7 +97,7 @@ export default function App() {
       <Text style={styles.title}>MÁY LÀM ẤM DUNG DỊCH NƯỚC MUỐI</Text>
       <View style={styles.infoContainer}>
         <Text style={styles.label}>Nhiệt độ máy</Text>
-        <Text style={styles.value}>{machineTemp}</Text>
+        <Text style={styles.value}>{temperature}</Text>
         <Text style={styles.label}>Nhiệt độ cài đặt</Text>
         <Text style={styles.value}>{setTemp}</Text>
         <Text style={styles.label}>Thời gian</Text>
