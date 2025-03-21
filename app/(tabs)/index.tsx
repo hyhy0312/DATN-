@@ -1,24 +1,86 @@
-// app/tabs/index.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, set, onValue } from 'firebase/database';
+
+// Cấu hình Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyC8l9CKSOA0iNYF2l8q_rApYCa2wj_6Wuw",
+  authDomain: "may-lam-am-dung-dich-muoi.firebaseapp.com",
+  databaseURL: "https://may-lam-am-dung-dich-muoi-default-rtdb.firebaseio.com",
+  projectId: "may-lam-am-dung-dich-muoi",
+  storageBucket: "may-lam-am-dung-dich-muoi.firebasestorage.app",
+  messagingSenderId: "866755714890",
+  appId: "1:866755714890:web:28f189332d08d948a36bb3",
+  measurementId: "G-2YBJZMC21W"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 export default function App() {
   const [machineTemp, setMachineTemp] = useState(56);
-  const [setTemp, setSetTemp] = useState(37);
-  const [time, setTime] = useState(41 * 60 + 56); // 41m 56s in seconds
-  const [running, setRunning] = useState(false);
+  const [setTemp, setSetTemp] = useState(37); // Nhiệt độ cài đặt
+  const [isRunning, setIsRunning] = useState(false); // Trạng thái START/STOP
+  const [time, setTime] = useState(0); // Thời gian đếm
 
-  const toggleStartStop = () => {
-    setRunning(!running);
+  // Đồng hồ
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    if (isRunning) {
+      setTime(0);
+      timer = setInterval(() => {
+        setTime(prevTime => prevTime + 1); // Tăng thời gian mỗi giây
+      }, 1000);
+    } else {
+      clearInterval(timer); // Dừng đồng hồ khi dừng máy
+    }
+    return () => clearInterval(timer);
+  }, [isRunning]);
+
+  // Lắng nghe sự thay đổi từ Firebase
+  useEffect(() => {
+    const statusRef = ref(database, 'machineStatus');
+    
+    // Lắng nghe sự thay đổi từ Firebase
+    const unsubscribe = onValue(statusRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setMachineTemp(data.machineTemp || 56); // Cập nhật nhiệt độ máy
+        setSetTemp(data.setTemp || 37); // Cập nhật nhiệt độ cài đặt
+        setIsRunning(data.startStop === 'START'); // Cập nhật trạng thái START/STOP
+      }
+    });
+
+    // Dọn dẹp khi component unmount
+    return () => unsubscribe(); // Dừng lắng nghe khi component unmount
+  }, []);
+
+  // Xử lý sự kiện START/STOP
+  const handleStartStop = () => {
+    const newRunningState = !isRunning;
+    setIsRunning(newRunningState);
+    set(ref(database, 'machineStatus/startStop'), newRunningState ? 'START' : 'STOP');
   };
 
+  // Tăng nhiệt độ cài đặt
   const increaseTemp = () => {
-    setSetTemp(prevTemp => (prevTemp < 40 ? prevTemp + 1 : prevTemp)); // Maximum 40
+    const newTemp = setTemp < 40 ? setTemp + 1 : setTemp;
+    setSetTemp(newTemp);
+    set(ref(database, 'machineStatus/setTemp'), newTemp); // Cập nhật lên Firebase
   };
 
+  // Giảm nhiệt độ cài đặt
   const decreaseTemp = () => {
-    setSetTemp(prevTemp => (prevTemp > 35 ? prevTemp - 1 : prevTemp)); // Minimum 35
+    const newTemp = setTemp > 35 ? setTemp - 1 : setTemp;
+    setSetTemp(newTemp);
+    set(ref(database, 'machineStatus/setTemp'), newTemp); // Cập nhật lên Firebase
   };
+
+  // Cập nhật nhiệt độ máy vào Firebase
+  useEffect(() => {
+    set(ref(database, 'machineStatus/machineTemp'), machineTemp); // Cập nhật giá trị máy lên Firebase
+  }, [machineTemp]);
 
   // Chuyển thời gian từ giây sang phút và giây
   const formatTime = (timeInSeconds: number) => {
@@ -43,10 +105,10 @@ export default function App() {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.startStopButton, { backgroundColor: running ? 'green' : 'red' }]}
-          onPress={toggleStartStop}
+          style={[styles.startStopButton, { backgroundColor: isRunning ? 'red' : 'green' }]}
+          onPress={handleStartStop}
         >
-          <Text style={styles.buttonText}>START/STOP</Text>
+           <Text style={styles.buttonText}>{isRunning ? 'STOP' : 'START'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.controlButton} onPress={increaseTemp}>
           <Text style={styles.buttonText}>UP</Text>
