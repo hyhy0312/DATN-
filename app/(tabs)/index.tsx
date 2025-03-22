@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue } from 'firebase/database';
 
@@ -60,7 +60,7 @@ export default function App() {
   const handleStartStop = () => {
     const newRunningState = !isRunning;
     setIsRunning(newRunningState);
-    set(ref(database, 'machineStatus/startStop'), newRunningState ? 'START' : 'STOP');
+    set(ref(database, 'machineStatus/startStop'), newRunningState ? 'true' : 'false');
   };
 
   // Tăng nhiệt độ cài đặt
@@ -90,11 +90,18 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require('../../assets/images/maxresdefault.jpg')}
+      style={styles.container}
+    >
+      <View style={styles.overlay} /> 
       <View style={styles.header}>
         <Text style={styles.headerText}>Trường ĐH Sư phạm Kỹ Thuật TP.HCM</Text>
       </View>
-      <Text style={styles.title}>MÁY LÀM ẤM DUNG DỊCH NƯỚC MUỐI</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>MÁY LÀM ẤM {'\n'} DUNG DỊCH NƯỚC MUỐI</Text>
+      </View>
+
       <View style={styles.infoContainer}>
         <Text style={styles.label}>Nhiệt độ máy</Text>
         <Text style={styles.value}>{temperature}</Text>
@@ -105,95 +112,158 @@ export default function App() {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.startStopButton, { backgroundColor: isRunning ? 'red' : 'green' }]}
+          style={[styles.startStopButton, { backgroundColor: isRunning ? 'rgba(241, 38, 31, 1)' : 'rgb(92, 187, 37)' }]}
           onPress={handleStartStop}
         >
            <Text style={styles.buttonText}>{isRunning ? 'STOP' : 'START'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.controlButton} onPress={increaseTemp}>
+        <TouchableOpacity style={styles.controlButtonUP} onPress={increaseTemp}>
           <Text style={styles.buttonText}>UP</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.controlButton} onPress={decreaseTemp}>
+        <TouchableOpacity style={styles.controlButtonDOWN} onPress={decreaseTemp}>
           <Text style={styles.buttonText}>DOWN</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.footer}>
         <Text style={styles.footerText}>Bệnh viện Nhân Dân 115</Text>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(224, 237, 238, 0.6)', // Đảm bảo lớp phủ mờ
+    zIndex: 0, // Đảm bảo lớp phủ không che phủ các thành phần con
   },
   header: {
     backgroundColor: '#78c4d4',
     width: '100%',
-    padding: 10,
+    padding: 15,
     alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute', // Giữ tiêu đề ở trên cùng
+    top: 0,
+    zIndex: 2, // Đảm bảo tiêu đề không bị che khuất
+    
   },
   headerText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  title: {
     fontSize: 20,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 10,
+    
   },
+
+  titleContainer: {
+    backgroundColor: 'rgba(184, 206, 235, 0.6)', // Độ mờ của khung
+    padding: 15,
+    borderRadius: 10,  // Bo góc khung
+    borderColor: 'black', // Màu viền của khung
+    width: '90%', // Điều chỉnh chiều rộng của khung
+    alignItems: 'center', // Căn giữa chữ
+    marginBottom: 20, // Khoảng cách dưới khung
+    position: 'relative', // Sử dụng position relative để kiểm soát vị trí
+    marginTop: -80, // Đẩy lên gần header hơn
+    zIndex: 10, // Đảm bảo khung không bị che khuất
+    height: 100, // Đảm bảo chiều cao đủ cho khung
+  },
+
+  title: {
+    fontSize: 30, // Cỡ chữ cho title
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: 'black', // Màu chữ đen để nổi bật trên nền tối
+  },
+
   infoContainer: {
-    backgroundColor: '#cdeeff',
-    padding: 20,
-    borderRadius: 10,
+    backgroundColor: 'rgba(184, 206, 235, 0.9)',
+    padding: 30,
+    borderRadius: 20,
     alignItems: 'center',
+    width: '50%', // Điều chỉnh chiều rộng của thông tin
   },
   label: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   value: {
-    fontSize: 30,
+    fontSize: 40,
     fontWeight: 'bold',
-    marginVertical: 5,
+    marginVertical: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
     marginTop: 20,
+    justifyContent: 'space-between', // Đảm bảo các nút có khoảng cách đều nhau
+    width: '80%', // Thêm chiều rộng để các nút có khoảng cách đều
+    
   },
   startStopButton: {
-    padding: 15,
+    padding: 20,
     borderRadius: 50,
     marginHorizontal: 10,
+    shadowColor: '#000', // Màu bóng
+    shadowOffset: { width: 0, height: 4 }, // Độ nghiêng của bóng
+    shadowOpacity: 0.3, // Độ mờ của bóng
+    shadowRadius: 5, // Kích thước bóng
+    elevation: 5, // Đổ bóng cho Android
+    
   },
-  controlButton: {
-    backgroundColor: 'red',
-    padding: 15,
+  controlButtonUP: {
+    backgroundColor: '#4A90E2',
+    padding: 20,
     borderRadius: 50,
     marginHorizontal: 10,
+    width: 85,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000', // Màu bóng
+    shadowOffset: { width: 0, height: 4 }, // Độ nghiêng của bóng
+    shadowOpacity: 0.3, // Độ mờ của bóng
+    shadowRadius: 5, // Kích thước bóng
+    elevation: 5, // Đổ bóng cho Android
+  },
+  controlButtonDOWN: {
+    backgroundColor: '#4A90E2',
+    padding: 20,
+    borderRadius: 50,
+    marginHorizontal: 10,
+    shadowColor: '#000', // Màu bóng
+    shadowOffset: { width: 0, height: 4 }, // Độ nghiêng của bóng
+    shadowOpacity: 0.3, // Độ mờ của bóng
+    shadowRadius: 5, // Kích thước bóng
+    elevation: 5, // Đổ bóng cho Android
+    
   },
   buttonText: {
-    color: 'white',
+    color: 'BLACK',
     fontSize: 16,
     fontWeight: 'bold',
+    //alignItems: 'center',
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     backgroundColor: '#78c4d4',
     width: '100%',
-    padding: 10,
+    padding: 15,
     alignItems: 'center',
   },
   footerText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
 });
