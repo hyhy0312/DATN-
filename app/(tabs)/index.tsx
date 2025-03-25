@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Dimensions  } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue } from 'firebase/database';
 
@@ -17,6 +17,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+
+// Lấy chiều rộng và chiều cao màn hình
+const { width, height } = Dimensions.get('window');
+const paddingValue = width * 0.05; // 5% của chiều rộng
+const fontSizeBase = width * 0.05; // Kích thước font có thể thay đổi theo chiều rộng màn hình
 
 export default function App() {
   const [temperature, setTemperature] = useState(56);
@@ -131,8 +136,6 @@ export default function App() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -148,40 +151,41 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(224, 237, 238, 0.6)', // Đảm bảo lớp phủ mờ
     zIndex: 0, // Đảm bảo lớp phủ không che phủ các thành phần con
   },
+
   header: {
     backgroundColor: '#78c4d4',
     width: '100%',
-    padding: 15,
+    padding: width * 0.05, // Padding linh hoạt
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute', // Giữ tiêu đề ở trên cùng
     top: 0,
     zIndex: 2, // Đảm bảo tiêu đề không bị che khuất
-    
   },
   headerText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: width * 0.05, // Điều chỉnh kích thước font theo chiều rộng màn hình
     fontWeight: 'bold',
     
   },
 
   titleContainer: {
     backgroundColor: 'rgba(184, 206, 235, 0.6)', // Độ mờ của khung
-    padding: 15,
+    padding: width * 0.03, // Padding linh hoạt
+    
     borderRadius: 10,  // Bo góc khung
     borderColor: 'black', // Màu viền của khung
-    width: '90%', // Điều chỉnh chiều rộng của khung
+    //width: '90%', // Điều chỉnh chiều rộng của khung
     alignItems: 'center', // Căn giữa chữ
-    marginBottom: 20, // Khoảng cách dưới khung
+    marginBottom: height * 0.03, // Khoảng cách dưới khung
     position: 'relative', // Sử dụng position relative để kiểm soát vị trí
-    marginTop: -80, // Đẩy lên gần header hơn
+    marginTop: -height * 0.1, // Đẩy lên gần header hơn
     zIndex: 10, // Đảm bảo khung không bị che khuất
-    height: 100, // Đảm bảo chiều cao đủ cho khung
+    height: height * 0.13, // Điều chỉnh chiều cao theo màn hình
   },
 
   title: {
-    fontSize: 30, // Cỡ chữ cho title
+    fontSize: width * 0.07, // Cỡ chữ cho title
     fontWeight: 'bold',
     textAlign: 'center',
     color: 'black', // Màu chữ đen để nổi bật trên nền tối
@@ -189,31 +193,31 @@ const styles = StyleSheet.create({
 
   infoContainer: {
     backgroundColor: 'rgba(184, 206, 235, 0.9)',
-    padding: 30,
+    padding: width * 0.06, // Padding linh hoạt
     borderRadius: 20,
     alignItems: 'center',
     width: '50%', // Điều chỉnh chiều rộng của thông tin
   },
   label: {
-    fontSize: 20,
+    fontSize: width * 0.045,
     fontWeight: 'bold',
   },
   value: {
-    fontSize: 40,
+    fontSize: width * 0.09,
     fontWeight: 'bold',
-    marginVertical: 10,
+    marginVertical: 7,
   },
   buttonContainer: {
     flexDirection: 'row',
-    marginTop: 20,
+    marginTop: height * 0.03,
     justifyContent: 'space-between', // Đảm bảo các nút có khoảng cách đều nhau
     width: '80%', // Thêm chiều rộng để các nút có khoảng cách đều
     
   },
   startStopButton: {
-    padding: 20,
+    padding: width * 0.05, // Padding linh hoạt
     borderRadius: 50,
-    marginHorizontal: 10,
+    marginHorizontal: width * 0.02, // Margin linh hoạt
     shadowColor: '#000', // Màu bóng
     shadowOffset: { width: 0, height: 4 }, // Độ nghiêng của bóng
     shadowOpacity: 0.3, // Độ mờ của bóng
@@ -223,33 +227,33 @@ const styles = StyleSheet.create({
   },
   controlButtonUP: {
     backgroundColor: '#4A90E2',
-    padding: 20,
+    padding: width * 0.05, // Padding linh hoạt
     borderRadius: 50,
-    marginHorizontal: 10,
-    width: 85,
+    marginHorizontal: width * 0.02, // Margin linh hoạt
+    width: width * 0.2, // Điều chỉnh chiều rộng theo màn hình
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000', // Màu bóng
-    shadowOffset: { width: 0, height: 4 }, // Độ nghiêng của bóng
-    shadowOpacity: 0.3, // Độ mờ của bóng
-    shadowRadius: 5, // Kích thước bóng
-    elevation: 5, // Đổ bóng cho Android
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   controlButtonDOWN: {
     backgroundColor: '#4A90E2',
-    padding: 20,
+    padding: width * 0.05, // Padding linh hoạt
     borderRadius: 50,
-    marginHorizontal: 10,
-    shadowColor: '#000', // Màu bóng
-    shadowOffset: { width: 0, height: 4 }, // Độ nghiêng của bóng
-    shadowOpacity: 0.3, // Độ mờ của bóng
-    shadowRadius: 5, // Kích thước bóng
-    elevation: 5, // Đổ bóng cho Android
+    marginHorizontal: width * 0.02, // Margin linh hoạt
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
     
   },
   buttonText: {
     color: 'BLACK',
-    fontSize: 16,
+    fontSize: width * 0.04, // Điều chỉnh kích thước font linh hoạt
     fontWeight: 'bold',
     //alignItems: 'center',
   },
@@ -258,12 +262,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: '#78c4d4',
     width: '100%',
-    padding: 15,
+    padding: width * 0.05, // Padding linh hoạt
     alignItems: 'center',
   },
   footerText: {
     color: 'white',
-    fontSize: 15,
+    fontSize: width * 0.04, // Điều chỉnh kích thước font linh hoạt
     fontWeight: 'bold',
   },
 });
