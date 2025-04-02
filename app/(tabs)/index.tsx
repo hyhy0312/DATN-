@@ -63,9 +63,9 @@ export default function App() {
 
   // Xử lý sự kiện START/STOP
   const handleStartStop = () => {
-    const newRunningState = !isRunning;
-    setIsRunning(newRunningState);
-    set(ref(database, 'machineStatus/startStop'), newRunningState ? 'true' : 'false');
+    const newRunningState = !isRunning; // Lấy trạng thái mới
+    setIsRunning(newRunningState); // Cập nhật trạng thái trong ứng dụng
+    set(ref(database, 'machineStatus/startStop'), newRunningState ? 'START' : 'STOP');
   };
 
   // Tăng nhiệt độ cài đặt
