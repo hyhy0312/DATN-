@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     padding: width * 0.06, // Padding linh hoạt
     borderRadius: 20,
     alignItems: 'center',
-    width: '50%', // Điều chỉnh chiều rộng của thông tin
+    width: '70%', // Điều chỉnh chiều rộng của thông tin
   },
   label: {
     fontSize: width * 0.045,

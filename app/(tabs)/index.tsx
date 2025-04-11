@@ -80,7 +80,7 @@ export default function App() {
   }, [temperature]);
 
   // Chuyển thời gian từ giây sang phút và giây
-  const formatTime = (minute: number, second: number, hour: number) => {
+  const formatTime = (hour: number, minute: number, second: number) => {
     return `${hour}h ${minute}m ${second}s`;
   };
   
