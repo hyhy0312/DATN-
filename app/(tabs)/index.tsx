@@ -27,6 +27,7 @@ export default function App() {
   const [temperature, setTemperature] = useState(56);
   const [setTemp, setSetTemp] = useState(37); // Nhiệt độ cài đặt
   const [isRunning, setIsRunning] = useState(false); // Trạng thái START/STOP
+  const [hour, setHour] = useState(0);
   const [minute, setMinute] = useState(0);
   const [second, setSecond] = useState(0);
 
@@ -42,6 +43,7 @@ export default function App() {
         setTemperature(data.temperature || 56); // Cập nhật nhiệt độ máy
         setSetTemp(data.setTemp || 37); // Cập nhật nhiệt độ cài đặt
         setIsRunning(data.startStop === 'START'); // Cập nhật trạng thái START/STOP
+        setHour(data.hour || 0);
         setMinute(data.minute || 0);
         setSecond(data.second || 0);
       }
@@ -78,8 +80,8 @@ export default function App() {
   }, [temperature]);
 
   // Chuyển thời gian từ giây sang phút và giây
-  const formatTime = (minute: number, second: number) => {
-    return `${minute}m ${second}s`;
+  const formatTime = (minute: number, second: number, hour: number) => {
+    return `${hour}h ${minute}m ${second}s`;
   };
   
 
@@ -102,7 +104,7 @@ export default function App() {
         <Text style={styles.label}>Nhiệt độ cài đặt</Text>
         <Text style={styles.value}>{setTemp}</Text>
         <Text style={styles.label}>Thời gian</Text>
-        <Text style={styles.value}>{formatTime(minute, second)}</Text>
+        <Text style={styles.value}>{formatTime(hour,minute, second)}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
