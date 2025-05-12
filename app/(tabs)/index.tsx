@@ -125,4 +125,8 @@ export default function App() {
       </View>
     </ImageBackground>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> dc64d4600663fd0258ea98eceb37424afeaf9920
