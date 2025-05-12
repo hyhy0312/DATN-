@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Dimensions  } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue } from 'firebase/database';
-
+import styles from './styles'
 // Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyC8l9CKSOA0iNYF2l8q_rApYCa2wj_6Wuw",
@@ -27,21 +27,10 @@ export default function App() {
   const [temperature, setTemperature] = useState(56);
   const [setTemp, setSetTemp] = useState(37); // Nhiệt độ cài đặt
   const [isRunning, setIsRunning] = useState(false); // Trạng thái START/STOP
-  const [time, setTime] = useState(0); // Thời gian đếm
+  const [hour, setHour] = useState(0);
+  const [minute, setMinute] = useState(0);
+  const [second, setSecond] = useState(0);
 
-  // Đồng hồ
-  useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
-    if (isRunning) {
-      setTime(0);
-      timer = setInterval(() => {
-        setTime(prevTime => prevTime + 1); // Tăng thời gian mỗi giây
-      }, 1000);
-    } else {
-      clearInterval(timer); // Dừng đồng hồ khi dừng máy
-    }
-    return () => clearInterval(timer);
-  }, [isRunning]);
 
   // Lắng nghe sự thay đổi từ Firebase
   useEffect(() => {
@@ -54,6 +43,9 @@ export default function App() {
         setTemperature(data.temperature || 56); // Cập nhật nhiệt độ máy
         setSetTemp(data.setTemp || 37); // Cập nhật nhiệt độ cài đặt
         setIsRunning(data.startStop === 'START'); // Cập nhật trạng thái START/STOP
+        setHour(data.hour || 0);
+        setMinute(data.minute || 0);
+        setSecond(data.second || 0);
       }
     });
 
@@ -88,11 +80,10 @@ export default function App() {
   }, [temperature]);
 
   // Chuyển thời gian từ giây sang phút và giây
-  const formatTime = (timeInSeconds: number) => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    return `${minutes}m ${seconds}s`;
+  const formatTime = (hour: number, minute: number, second: number) => {
+    return `${hour}h ${minute}m ${second}s`;
   };
+  
 
   return (
     <ImageBackground
@@ -113,7 +104,7 @@ export default function App() {
         <Text style={styles.label}>Nhiệt độ cài đặt</Text>
         <Text style={styles.value}>{setTemp}</Text>
         <Text style={styles.label}>Thời gian</Text>
-        <Text style={styles.value}>{formatTime(time)}</Text>
+        <Text style={styles.value}>{formatTime(hour,minute, second)}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -135,139 +126,3 @@ export default function App() {
     </ImageBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(224, 237, 238, 0.6)', // Đảm bảo lớp phủ mờ
-    zIndex: 0, // Đảm bảo lớp phủ không che phủ các thành phần con
-  },
-
-  header: {
-    backgroundColor: '#78c4d4',
-    width: '100%',
-    padding: width * 0.05, // Padding linh hoạt
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute', // Giữ tiêu đề ở trên cùng
-    top: 0,
-    zIndex: 2, // Đảm bảo tiêu đề không bị che khuất
-  },
-  headerText: {
-    color: 'white',
-    fontSize: width * 0.05, // Điều chỉnh kích thước font theo chiều rộng màn hình
-    fontWeight: 'bold',
-    
-  },
-
-  titleContainer: {
-    backgroundColor: 'rgba(184, 206, 235, 0.6)', // Độ mờ của khung
-    padding: width * 0.03, // Padding linh hoạt
-    
-    borderRadius: 10,  // Bo góc khung
-    borderColor: 'black', // Màu viền của khung
-    //width: '90%', // Điều chỉnh chiều rộng của khung
-    alignItems: 'center', // Căn giữa chữ
-    marginBottom: height * 0.03, // Khoảng cách dưới khung
-    position: 'relative', // Sử dụng position relative để kiểm soát vị trí
-    marginTop: -height * 0.1, // Đẩy lên gần header hơn
-    zIndex: 10, // Đảm bảo khung không bị che khuất
-    height: height * 0.13, // Điều chỉnh chiều cao theo màn hình
-  },
-
-  title: {
-    fontSize: width * 0.07, // Cỡ chữ cho title
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: 'black', // Màu chữ đen để nổi bật trên nền tối
-  },
-
-  infoContainer: {
-    backgroundColor: 'rgba(184, 206, 235, 0.9)',
-    padding: width * 0.06, // Padding linh hoạt
-    borderRadius: 20,
-    alignItems: 'center',
-    width: '50%', // Điều chỉnh chiều rộng của thông tin
-  },
-  label: {
-    fontSize: width * 0.045,
-    fontWeight: 'bold',
-  },
-  value: {
-    fontSize: width * 0.09,
-    fontWeight: 'bold',
-    marginVertical: 7,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginTop: height * 0.03,
-    justifyContent: 'space-between', // Đảm bảo các nút có khoảng cách đều nhau
-    width: '80%', // Thêm chiều rộng để các nút có khoảng cách đều
-    
-  },
-  startStopButton: {
-    padding: width * 0.05, // Padding linh hoạt
-    borderRadius: 50,
-    marginHorizontal: width * 0.02, // Margin linh hoạt
-    shadowColor: '#000', // Màu bóng
-    shadowOffset: { width: 0, height: 4 }, // Độ nghiêng của bóng
-    shadowOpacity: 0.3, // Độ mờ của bóng
-    shadowRadius: 5, // Kích thước bóng
-    elevation: 5, // Đổ bóng cho Android
-    
-  },
-  controlButtonUP: {
-    backgroundColor: '#4A90E2',
-    padding: width * 0.05, // Padding linh hoạt
-    borderRadius: 50,
-    marginHorizontal: width * 0.02, // Margin linh hoạt
-    width: width * 0.2, // Điều chỉnh chiều rộng theo màn hình
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  controlButtonDOWN: {
-    backgroundColor: '#4A90E2',
-    padding: width * 0.05, // Padding linh hoạt
-    borderRadius: 50,
-    marginHorizontal: width * 0.02, // Margin linh hoạt
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-    
-  },
-  buttonText: {
-    color: 'BLACK',
-    fontSize: width * 0.04, // Điều chỉnh kích thước font linh hoạt
-    fontWeight: 'bold',
-    //alignItems: 'center',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    backgroundColor: '#78c4d4',
-    width: '100%',
-    padding: width * 0.05, // Padding linh hoạt
-    alignItems: 'center',
-  },
-  footerText: {
-    color: 'white',
-    fontSize: width * 0.04, // Điều chỉnh kích thước font linh hoạt
-    fontWeight: 'bold',
-  },
-});
